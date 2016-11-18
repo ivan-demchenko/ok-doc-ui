@@ -25,10 +25,12 @@ init =
   Model
     "A Component"
     "Some great stuff here"
-    (List.map (\x -> (x, DemoModel ("Demo " ++ toString x) ("http://example.com/demo" ++ (toString x) ++ ".html"))) [1..4])
+    (generateDemos 5)
     0
 
-
+generateDemos : Int -> List (Int, DemoModel)
+generateDemos n =
+  (List.map (\x -> (x, DemoModel ("Demo " ++ toString x) ("http://example.com/demo" ++ (toString x) ++ ".html"))) [1..n])
 
 renderDemoLink : Styles -> IndexedDemoModel -> Html Msg
 renderDemoLink styles (idx, {name, link}) =
