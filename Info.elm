@@ -20,17 +20,19 @@ type alias Model =
   , selectedDeno: Int
   }
 
-init : Model
+init : (Model, Cmd Msg)
 init =
-  Model
-    "A Component"
-    "Some great stuff here"
-    (generateDemos 5)
-    0
+  ( Model "A Component" "Some great stuff here" (generateDemos 5) 0
+  , Cmd.none
+  )
 
 generateDemos : Int -> List (Int, DemoModel)
 generateDemos n =
-  (List.map (\x -> (x, DemoModel ("Demo " ++ toString x) ("http://example.com/demo" ++ (toString x) ++ ".html"))) [1..n])
+  let
+    demoLink = \x -> "http://example.com/demo" ++ (toString x) ++ ".html"
+    demoName = \x -> "Demo " ++ toString x
+  in
+    List.map (\x -> (x, DemoModel (demoName x) (demoLink x))) (List.range 1 n)
 
 renderDemoLink : Styles -> IndexedDemoModel -> Html Msg
 renderDemoLink styles (idx, {name, link}) =
@@ -59,7 +61,7 @@ view stylesheet {title, descr, demos} =
     ]
 
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    Noop -> model
+    Noop -> (model, Cmd.none)

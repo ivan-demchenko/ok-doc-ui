@@ -1,62 +1,46 @@
 module Sidebar exposing (..)
 
+import Tree exposing (..)
 import Html exposing (..)
-import Html.Events exposing (..)
-import Http
-import Json.Decode as Decode
 
 type Msg
   = Choose Int
-  | GotSections (Result Http.Error SectionsList)
-
-type alias SectionsList =
-    List (Int, String)
+  | Init Tree
 
 type alias Model =
-    { items : SectionsList
-    , selected : Int
-    }
+  { selected : Int
+  , tree : Tree
+  }
 
-decodeModel : Decode.Decoder SectionsList
-decodeModel = Decode.list
-
-
-getSections : Http.Request SectionsList
-getSections =
-    let
-      url = "https://runkit.io/raqystyle/582e188c29c74b001477e5cd/branches/master/sections"
-    in
-      Http.get url decodeModel
-
-fetchSections : Cmd Msg
-fetchSections = 
-    Http.send GotSections getSections
-
-
-init : Model
+init : (Model, Cmd Msg)
 init =
-    { items = List.map (\x -> (x, "Section " ++ toString x)) [1..10]
-    , selected = 0
-    }
+  ( Model 0 getSampleTree
+  , Cmd.none
+  )
 
-
-update : Msg -> Model -> Model
+update : Msg -> Model -> (Model, Cmd Msg)
 update msg mdl =
-    case msg of
-        Choose iid ->
-            { mdl | selected = iid }
+  case msg of
+    Choose iid ->
+      ( { mdl | selected = iid }
+      , Cmd.none
+      )
+    Init tree ->
+      ( { mdl | tree = tree }
+      , Cmd.none
+      )
 
-        GotSections err sections ->
-            { mdl | items = sections }
-
-
-renderItem : (Int, String) -> Html Msg
-renderItem (id, name) =
-    li [ onClick (Choose id) ] [
-        text name
-    ]
-
+renderTree : Int -> Tree -> Html Msg
+renderTree selected tree =
+  case tree of
+    Tree idx name subs ->
+      ul [] [
+        li [] (
+          [text name] ++ (List.map (renderTree selected) subs))
+      ]
+    Nil ->
+      ul [] []
 
 view : Model -> Html Msg
-view model =
-    aside [] (List.map renderItem model.items)
+view { selected, tree } =
+  renderTree selected tree
