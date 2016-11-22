@@ -1,22 +1,30 @@
 module Tree exposing (..)
 
-type Tree
-  = Tree Int String (List Tree) | Nil
+import Json.Decode exposing (..)
 
-getSampleTree : Tree
-getSampleTree =
-  Tree 0 "Demo" [
-    Tree 1 "Section 1" [],
-    Tree 2 "Section 2" [
-      Tree 3 "Subsection 1" [],
-      Tree 4 "Subsection 2" []
-    ],
-    Tree 5 "Section 3" [
-      Tree 6 "Subsection 1" [],
-      Tree 7 "Subsection 2" [],
-      Tree 8 "Subsection 3" []
-    ]
-  ]
+type alias Tree =
+  { idx: Int
+  , name: String
+  , subs: Subs
+  }
 
-getEmptyTree : Tree
-getEmptyTree = Nil
+type Subs = Subs (List Tree)
+
+
+
+decodeSubs : Decoder (List Tree)
+decodeSubs = list decodeTree
+
+
+
+decodeTree : Decoder Tree
+decodeTree =
+  map3 Tree 
+    (field "id" int)
+    (field "name" string)
+    (field "subs" (map Subs (lazy (\_ -> decodeSubs))))
+
+
+
+empty : Tree
+empty = Tree 0 "Waiting..." (Subs [])

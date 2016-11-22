@@ -35,6 +35,12 @@ stylesheet =
         , ("flex-direction", "column")
         , ("flex", "1 0 auto")
         ])
+    , ("emptyInfo",
+        [ ("padding", "3rem 0")
+        , ("text-align", "center")
+        , ("background-color", "#f4f4f4")
+        , ("flex", "1 0 auto")
+        ])
     , ("titleSection",
         [ ("padding", "2rem 1rem")
         , ("color", "#fff")

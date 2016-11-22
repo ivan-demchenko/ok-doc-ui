@@ -1,22 +1,31 @@
 module Sidebar exposing (..)
 
+
+
 import Tree exposing (..)
 import Html exposing (..)
+import Html.Events exposing (..)
+import Json.Decode exposing (..)
+
+
 
 type Msg
   = Choose Int
-  | Init Tree
 
 type alias Model =
   { selected : Int
   , tree : Tree
   }
 
+
+
 init : (Model, Cmd Msg)
 init =
-  ( Model 0 getSampleTree
+  ( Model 0 empty
   , Cmd.none
   )
+
+
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg mdl =
@@ -25,21 +34,35 @@ update msg mdl =
       ( { mdl | selected = iid }
       , Cmd.none
       )
-    Init tree ->
-      ( { mdl | tree = tree }
-      , Cmd.none
-      )
+
+
+renderTreeLabel : Int -> Int -> String -> Html Msg
+renderTreeLabel selected idx name =
+  if selected == idx
+    then (strong [] [ text name ])
+    else (span [] [ text name ])
 
 renderTree : Int -> Tree -> Html Msg
 renderTree selected tree =
   case tree of
-    Tree idx name subs ->
+    { idx, name, subs } ->
       ul [] [
-        li [] (
-          [text name] ++ (List.map (renderTree selected) subs))
+        li [ clicked idx ] ([
+          renderTreeLabel selected idx name
+        ] ++ renderSubTree selected subs)
       ]
-    Nil ->
-      ul [] []
+
+
+clicked : Int -> Attribute Msg
+clicked idx =
+  onWithOptions "click" (Options True True) (succeed (Choose idx))
+
+renderSubTree : Int -> Subs -> List (Html Msg)
+renderSubTree selected subs =
+  case subs of
+    Subs xs -> List.map (renderTree selected) xs 
+
+
 
 view : Model -> Html Msg
 view { selected, tree } =
