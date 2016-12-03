@@ -5,13 +5,13 @@ import Html.Attributes exposing (..)
 
 type alias RuleSet = List (String, String)
 
-type alias Styles = List ( String, RuleSet )  
+type alias Styles = List ( String, RuleSet )
 
 getStyle : String -> Styles -> Attribute msg
-getStyle name stylesheet =
+getStyle query stylesheet =
     let
         tmp =
-            List.filter (\(styleName, defsList) -> styleName == name) stylesheet
+            List.filter (\(name, _) -> name == query) stylesheet
     in
         case tmp of
             ((n, d) :: xs) -> style d
@@ -19,12 +19,26 @@ getStyle name stylesheet =
 
 stylesheet : Styles
 stylesheet =
-    [ ("layout",
+    [ ("body",
         [ ("display", "flex")
+        , ("flex-direction", "column")
+        ])
+    , ("layout",
+        [ ("display", "flex")
+        , ("flex", "1")
         ])
     , ("sidebar",
         [ ("display", "flex")
         , ("flex", "0 0 220px")
+        , ("background-color", "#37474F")
+        , ("color", "#CFD8DC")
+        , ("padding", "1rem 0")
+        , ("overflow", "auto")
+        ])
+    , ("tree",
+        [ ("list-style", "none")
+        , ("padding", "0 0 0 1rem")
+        , ("margin", "0")
         ])
     , ("main",
         [ ("display", "flex")

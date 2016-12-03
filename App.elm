@@ -85,7 +85,7 @@ update msg model =
 
     GotTree (Err problem) ->
         handleHttpError problem model
-    
+
     Noop ->
         ( model
         , Cmd.none
@@ -126,15 +126,18 @@ getJsonTree =
 view : Model -> Html Msg
 view model =
     let
-        layoutStyle = getStyle "layout" stylesheet 
+        bodyStyle = getStyle "body" stylesheet
+        layoutStyle = getStyle "layout" stylesheet
         sidebarStyle = getStyle "sidebar" stylesheet
         mainStyle = getStyle "main" stylesheet
 
-        sidebarView = SidebarComponent.view model.sidebar
+        sidebarView = (SidebarComponent.view stylesheet) model.sidebar
         infoView = (InfoComponent.view stylesheet) model.info
     in
-        div [ layoutStyle ]
-            [ div [] [ text model.err ]
-            , div [ sidebarStyle ] [ Html.map FromSidebar sidebarView ]
-            , div [ mainStyle ] [ Html.map Info infoView ]
+        body [ bodyStyle ] [
+            div [ layoutStyle ]
+                [ div [] [ text model.err ]
+                , div [ sidebarStyle ] [ Html.map FromSidebar sidebarView ]
+                , div [ mainStyle ] [ Html.map Info infoView ]
+                ]
             ]

@@ -6,6 +6,7 @@ import Tree exposing (..)
 import Html exposing (..)
 import Html.Events exposing (..)
 import Json.Decode exposing (..)
+import Stylesheet exposing (..)
 
 
 
@@ -42,14 +43,14 @@ renderTreeLabel selected idx name =
     then (strong [] [ text name ])
     else (span [] [ text name ])
 
-renderTree : Int -> Tree -> Html Msg
-renderTree selected tree =
+renderTree : Styles -> Int -> Tree -> Html Msg
+renderTree styles selected tree =
   case tree of
     { idx, name, subs } ->
-      ul [] [
+      ul [ getStyle "tree" styles ] [
         li [ clicked idx ] ([
           renderTreeLabel selected idx name
-        ] ++ renderSubTree selected subs)
+        ] ++ renderSubTree styles selected subs)
       ]
 
 
@@ -57,13 +58,14 @@ clicked : Int -> Attribute Msg
 clicked idx =
   onWithOptions "click" (Options True True) (succeed (Choose idx))
 
-renderSubTree : Int -> Subs -> List (Html Msg)
-renderSubTree selected subs =
+
+renderSubTree : Styles -> Int -> Subs -> List (Html Msg)
+renderSubTree styles selected subs =
   case subs of
-    Subs xs -> List.map (renderTree selected) xs 
+    Subs xs -> List.map (renderTree styles selected) xs
 
 
 
-view : Model -> Html Msg
-view { selected, tree } =
-  renderTree selected tree
+view : Styles -> Model -> Html Msg
+view stylesheet { selected, tree } =
+  renderTree stylesheet selected tree
