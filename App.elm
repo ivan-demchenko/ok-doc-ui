@@ -126,7 +126,7 @@ getJsonTree =
 view : Model -> Html Msg
 view model =
     let
-        bodyStyle = getStyle "body" stylesheet
+        main_Style = getStyle "main_" stylesheet
         layoutStyle = getStyle "layout" stylesheet
         sidebarStyle = getStyle "sidebar" stylesheet
         mainStyle = getStyle "main" stylesheet
@@ -134,7 +134,7 @@ view model =
         sidebarView = (SidebarComponent.view stylesheet) model.sidebar
         infoView = (InfoComponent.view stylesheet) model.info
     in
-        body [ bodyStyle ] [
+        main_ [ main_Style ] [
             div [ layoutStyle ]
                 [ div [] [ text model.err ]
                 , div [ sidebarStyle ] [ Html.map FromSidebar sidebarView ]

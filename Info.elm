@@ -13,10 +13,10 @@ type alias DemoModel =
   , path: String
   }
 
-type alias Info = 
+type alias Info =
   { title: String
   , descr: String
-  , demos: List DemoModel
+  , demos: Maybe (List DemoModel)
   }
 
 type Model = Full Info | None
@@ -47,6 +47,22 @@ renderDemoLink styles demo =
   ]
 
 
+renderDemos : Styles -> Maybe (List DemoModel) -> Html Msg
+renderDemos stylesheet demos =
+  let
+    demoLinksStyle =
+      getStyle "demoLinksSection" stylesheet
+    demoLinksListStyle =
+      getStyle "demoLinksList" stylesheet
+  in
+    case demos of
+      Just xs ->
+        section [ demoLinksStyle ] [
+          ul [ demoLinksListStyle ] (List.map (renderDemoLink stylesheet) xs)
+        ]
+      Nothing ->
+        section [] []
+
 
 renderInfo : Styles -> Model -> Html Msg
 renderInfo stylesheet model =
@@ -62,17 +78,13 @@ renderInfo stylesheet model =
         sectionStyle = getStyle "infoSection" stylesheet
         titleStyle = getStyle "titleSection" stylesheet
         descrStyle = getStyle "descriptionSection" stylesheet
-        demoLinksStyle = getStyle "demoLinksSection" stylesheet
-        demoLinksListStyle = getStyle "demoLinksList" stylesheet
-      in   
+      in
         div [ sectionStyle ] [
           section [ titleStyle ] [
             h1 [] [text title]
           ],
           section [ descrStyle ] [text descr],
-          section [ demoLinksStyle ] [
-              ul [ demoLinksListStyle ] (List.map (renderDemoLink stylesheet) demos)
-          ]
+          (renderDemos stylesheet demos)
         ]
 
 
@@ -94,4 +106,4 @@ decodeInfo =
   map3 Info
     (field "title" string)
     (field "descr" string)
-    (field "demos" (list decodeDemoModel))
+    (maybe (field "demos" (list decodeDemoModel)))

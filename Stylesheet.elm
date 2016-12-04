@@ -19,9 +19,10 @@ getStyle query stylesheet =
 
 stylesheet : Styles
 stylesheet =
-    [ ("body",
+    [ ("main_",
         [ ("display", "flex")
         , ("flex-direction", "column")
+        , ("height", "100%")
         ])
     , ("layout",
         [ ("display", "flex")

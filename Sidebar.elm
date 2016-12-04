@@ -43,6 +43,8 @@ renderTreeLabel selected idx name =
     then (strong [] [ text name ])
     else (span [] [ text name ])
 
+
+
 renderTree : Styles -> Int -> Tree -> Html Msg
 renderTree styles selected tree =
   case tree of
@@ -54,9 +56,11 @@ renderTree styles selected tree =
       ]
 
 
+
 clicked : Int -> Attribute Msg
 clicked idx =
   onWithOptions "click" (Options True True) (succeed (Choose idx))
+
 
 
 renderSubTree : Styles -> Int -> Subs -> List (Html Msg)
