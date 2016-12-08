@@ -5,6 +5,7 @@ import Tree as T
 import Http as Http
 import Info as InfoComponent exposing (..)
 import Sidebar as SidebarComponent exposing (..)
+import ErrorMessages as ErrorMessages exposing (..)
 import Stylesheet exposing (..)
 
 
@@ -18,17 +19,21 @@ main =
     , subscriptions = subscriptions
     }
 
+
+
 type Msg
     = Info InfoComponent.Msg
     | FromSidebar SidebarComponent.Msg
+    | FromErrorMessages ErrorMessages.Msg
     | GotTree (Result Http.Error T.Tree)
     | GotInfo (Result Http.Error InfoComponent.Info)
     | Noop
 
+
 type alias Model =
     { info: InfoComponent.Model
     , sidebar: SidebarComponent.Model
-    , err: String
+    , errors: ErrorMessages.Model
     }
 
 
@@ -39,7 +44,7 @@ init =
       (infoInit, infoFX) = InfoComponent.init
       (sidebarInit, sidebarFX) = SidebarComponent.init
     in
-        ( Model infoInit sidebarInit "np"
+        ( Model infoInit sidebarInit []
         , Cmd.batch
             [ Cmd.map Info infoFX
             , Cmd.map FromSidebar sidebarFX
@@ -70,6 +75,14 @@ update msg model =
             ( { model | sidebar = sbModel }
             , fetchInfo sbModel.selected)
 
+    FromErrorMessages errMsg ->
+        let
+            (errModel, errCmd) = ErrorMessages.update errMsg model.errors
+        in
+            ( { model | errors = errModel }
+            , Cmd.none
+            )
+
     GotInfo (Ok info) ->
         ( { model | info = (InfoComponent.filledModel info) }
         , Cmd.none
@@ -91,20 +104,41 @@ update msg model =
         , Cmd.none
         )
 
-
 -- Data / HTTP
 
+appendError : String -> String -> ErrorMessages.Model -> ErrorMessages.Model
+appendError errType reason errors =
+  let
+    nextIndex = (List.length errors) + 1
+    error = ErrorMessages.Error errType reason
+  in
+    (nextIndex, error) :: errors
+
+
 handleHttpError : Http.Error -> Model -> (Model, Cmd Msg)
-handleHttpError problem model =
+handleHttpError problem { info, sidebar, errors } =
     case problem of
         Http.BadPayload reason resp ->
-            ( { model | err = (toString reason) }
+            ( Model info sidebar (appendError "BadPayload" (toString reason) errors)
             , Cmd.none
             )
-        _ ->
-            ( model
+        Http.BadUrl reason ->
+            ( Model info sidebar (appendError "BadUrl" (toString reason) errors)
             , Cmd.none
             )
+        Http.Timeout ->
+            ( Model info sidebar (appendError "Timeout" "" errors)
+            , Cmd.none
+            )
+        Http.NetworkError ->
+            ( Model info sidebar (appendError "NetworkError" "" errors)
+            , Cmd.none
+            )
+        Http.BadStatus resp ->
+            ( Model info sidebar (appendError "BadStatus" (toString resp) errors)
+            , Cmd.none
+            )
+
 
 fetchInfo : Int -> Cmd Msg
 fetchInfo idx =
@@ -113,12 +147,15 @@ fetchInfo idx =
     in
         Http.send GotInfo <| Http.get url InfoComponent.decodeInfo
 
+
+
 getJsonTree : Cmd Msg
 getJsonTree =
     let
         url = "https://runkit.io/raqystyle/express-test/branches/master/sections"
     in
-        Http.send GotTree <| Http.get url T.decodeTree
+        Http.send GotTree
+          <| Http.get url T.decodeTree
 
 
 -- View
@@ -133,10 +170,11 @@ view model =
 
         sidebarView = (SidebarComponent.view stylesheet) model.sidebar
         infoView = (InfoComponent.view stylesheet) model.info
+        errorsView = (ErrorMessages.view stylesheet) model.errors
     in
         main_ [ main_Style ] [
             div [ layoutStyle ]
-                [ div [] [ text model.err ]
+                [ (Html.map FromErrorMessages errorsView)
                 , div [ sidebarStyle ] [ Html.map FromSidebar sidebarView ]
                 , div [ mainStyle ] [ Html.map Info infoView ]
                 ]

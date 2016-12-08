@@ -36,6 +36,17 @@ stylesheet =
         , ("padding", "1rem 0")
         , ("overflow", "auto")
         ])
+    , ("errors",
+        [ ("display", "flex")
+        , ("flex-direction", "column")
+        , ("background-color", "#ef5350")
+        , ("color", "#ffebee")
+        , ("position", "absolute")
+        , ("width", "100%")
+        ])
+    , ("error",
+        [ ("padding", "1rem")
+        ])
     , ("tree",
         [ ("list-style", "none")
         , ("padding", "0 0 0 1rem")

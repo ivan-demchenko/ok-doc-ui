@@ -19,7 +19,7 @@ decodeSubs = list decodeTree
 
 decodeTree : Decoder Tree
 decodeTree =
-  map3 Tree 
+  map3 Tree
     (field "id" int)
     (field "name" string)
     (field "subs" (map Subs (lazy (\_ -> decodeSubs))))
