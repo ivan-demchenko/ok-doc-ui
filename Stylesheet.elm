@@ -75,7 +75,7 @@ stylesheet =
         , ("background-color", "#3F51B5")
         ])
     , ("descriptionSection",
-        [ ("padding", "1rem 1rem")
+        [ ("padding", "0 1rem")
         , ("font-weight", "100")
         , ("font-family", "sans-serif")
         , ("background-color", "#BBDEFB")
