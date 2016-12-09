@@ -1,6 +1,7 @@
 module Info exposing (Msg, Info, Model, init, view, decodeInfo, filledModel)
 
 import Html exposing (..)
+import Markdown as Markdown exposing (..)
 import Stylesheet exposing (..)
 import Json.Decode exposing (..)
 
@@ -83,7 +84,7 @@ renderInfo stylesheet model =
           section [ titleStyle ] [
             h1 [] [text title]
           ],
-          section [ descrStyle ] [text descr],
+          (Markdown.toHtml [ descrStyle ] descr),
           (renderDemos stylesheet demos)
         ]
 
