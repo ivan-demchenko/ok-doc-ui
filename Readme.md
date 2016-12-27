@@ -17,3 +17,11 @@ elm-package install
 elm-reactor
 Open [http://localhost:8000](http://localhost:8000)
 ```
+
+### How it works
+
+When the app runs, it makes a request for the json file that describes the tree of your documentation. This file can be generated using [the generator](https://github.com/raqystyle/ok-doc-generator)
+
+Each time user selects the item in the tree, another request is being fired for the info about selected branch in the tree. The backend for such requests as well as for the tree json can be easily configured and run using [the backend](https://github.com/raqystyle/ok-doc-backend)
+
+Basically, you can install those two globally via npm. They both have cli and can be run using CL params.
