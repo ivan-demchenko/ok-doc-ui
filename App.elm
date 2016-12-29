@@ -92,7 +92,7 @@ update msg model =
         handleHttpError problem model
 
     GotTree (Ok tree) ->
-        ( { model | sidebar = SidebarComponent.Model 0 tree }
+        ( { model | sidebar = SidebarComponent.Model "" tree }
         , Cmd.none
         )
 
@@ -140,10 +140,10 @@ handleHttpError problem { info, sidebar, errors } =
             )
 
 
-fetchInfo : Int -> Cmd Msg
-fetchInfo idx =
+fetchInfo : String -> Cmd Msg
+fetchInfo pathToFetch =
     let
-        url = "https://runkit.io/raqystyle/express-test/branches/master/sections/" ++ (toString idx)
+        url = "http://localhost:3000/info?path=" ++ pathToFetch
     in
         Http.send GotInfo <| Http.get url InfoComponent.decodeInfo
 
@@ -152,7 +152,7 @@ fetchInfo idx =
 getJsonTree : Cmd Msg
 getJsonTree =
     let
-        url = "https://runkit.io/raqystyle/express-test/branches/master/sections"
+        url = "http://localhost:3000/tree"
     in
         Http.send GotTree
           <| Http.get url T.decodeTree

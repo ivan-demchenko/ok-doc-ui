@@ -10,12 +10,15 @@ import Stylesheet exposing (..)
 
 
 
+type alias Path =
+  String
+
 type Msg
-  = Choose Int
+  = Choose Path
 
 
 type alias Model =
-  { selected : Int
+  { selected : Path
   , tree : Tree
   }
 
@@ -23,7 +26,7 @@ type alias Model =
 
 init : (Model, Cmd Msg)
 init =
-  ( Model 0 empty
+  ( Model "" empty
   , Cmd.none
   )
 
@@ -32,42 +35,42 @@ init =
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg mdl =
   case msg of
-    Choose iid ->
-      ( { mdl | selected = iid }
+    Choose nodePath ->
+      ( { mdl | selected = nodePath }
       , Cmd.none
       )
 
 
-renderTreeLabel : Int -> Int -> String -> Html Msg
-renderTreeLabel selected idx name =
-  if selected == idx
+renderTreeLabel : Path -> Path -> String -> Html Msg
+renderTreeLabel selectedPath nodePath name =
+  if selectedPath == nodePath
     then (strong [] [ text name ])
     else (span [] [ text name ])
 
 
 
-renderTree : Styles -> Int -> Tree -> Html Msg
-renderTree styles selected tree =
+renderTree : Styles -> Path -> Tree -> Html Msg
+renderTree styles selectedPath tree =
   case tree of
-    { idx, name, subs } ->
+    { id, name, path, subs } ->
       ul [ getStyle "tree" styles ] [
-        li [ clicked idx ] ([
-          renderTreeLabel selected idx name
-        ] ++ renderSubTree styles selected subs)
+        li [ clicked path ] (
+          [ renderTreeLabel selectedPath path name ] ++ renderSubTree styles selectedPath subs
+        )
       ]
 
 
 
-clicked : Int -> Attribute Msg
-clicked idx =
-  onWithOptions "click" (Options True True) (succeed (Choose idx))
+clicked : Path -> Attribute Msg
+clicked nodePath =
+  onWithOptions "click" (Options True True) (succeed <| Choose nodePath)
 
 
 
-renderSubTree : Styles -> Int -> Subs -> List (Html Msg)
-renderSubTree styles selected subs =
+renderSubTree : Styles -> Path -> Subs -> List (Html Msg)
+renderSubTree styles selectedPath subs =
   case subs of
-    Subs xs -> List.map (renderTree styles selected) xs
+    Subs xs -> List.map (renderTree styles selectedPath) xs
 
 
 

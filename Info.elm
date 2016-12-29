@@ -15,7 +15,7 @@ type alias DemoModel =
   }
 
 type alias Info =
-  { title: String
+  { name: String
   , descr: String
   , demos: Maybe (List DemoModel)
   }
@@ -74,7 +74,7 @@ renderInfo stylesheet model =
       in
         div [ emptyInfo ] [ text "Please, select something on the right" ]
 
-    Full {title, descr, demos} ->
+    Full {name, descr, demos} ->
       let
         sectionStyle = getStyle "infoSection" stylesheet
         titleStyle = getStyle "titleSection" stylesheet
@@ -82,7 +82,7 @@ renderInfo stylesheet model =
       in
         div [ sectionStyle ] [
           section [ titleStyle ] [
-            h1 [] [text title]
+            h1 [] [text name]
           ],
           (Markdown.toHtml [ descrStyle ] descr),
           (renderDemos stylesheet demos)
@@ -105,6 +105,6 @@ decodeDemoModel =
 decodeInfo : Decoder Info
 decodeInfo =
   map3 Info
-    (field "title" string)
+    (field "name" string)
     (field "descr" string)
     (maybe (field "demos" (list decodeDemoModel)))
