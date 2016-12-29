@@ -1,13 +1,17 @@
-module Info exposing (Msg, Info, Model, init, view, decodeInfo, filledModel)
+module Info exposing (Msg, Info, Model, update, init, view, decodeInfo, filledModel)
 
 import Html exposing (..)
+import Html.Attributes exposing (src)
+import Html.Events exposing (onClick)
 import Markdown as Markdown exposing (..)
 import Stylesheet exposing (..)
 import Json.Decode exposing (..)
 
 
 
-type Msg = Noop
+type Msg
+  = Noop
+  | SelectDemo String
 
 type alias DemoModel =
   { name: String
@@ -18,6 +22,7 @@ type alias Info =
   { name: String
   , descr: String
   , demos: Maybe (List DemoModel)
+  , selectedDemoPath: Maybe String
   }
 
 type Model = Full Info | None
@@ -37,15 +42,31 @@ init =
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    Noop -> (model, Cmd.none)
+    Noop ->
+      ( model
+      , Cmd.none
+      )
+    
+    SelectDemo demoPath ->
+      case model of
+        None ->
+          (model, Cmd.none)
+        
+        Full oldInfo ->
+          let
+            newInfo =
+              { oldInfo | selectedDemoPath = Just demoPath }
+          in
+            (filledModel newInfo, Cmd.none)
 
 
 
 renderDemoLink : Styles -> DemoModel -> Html Msg
 renderDemoLink styles demo =
-  li [ getStyle "demoLinksListItem" styles ] [
-    text demo.name
-  ]
+  li [
+    getStyle "demoLinksListItem" styles,
+    onClick (SelectDemo demo.path)
+  ] [ text demo.name ]
 
 
 renderDemos : Styles -> Maybe (List DemoModel) -> Html Msg
@@ -65,6 +86,15 @@ renderDemos stylesheet demos =
         section [] []
 
 
+renderSelectedDemo : Maybe String -> Html Msg
+renderSelectedDemo demoPath =
+  case demoPath of
+    Just path ->
+      iframe [src path] []
+    
+    Nothing ->
+      div [] []
+
 renderInfo : Styles -> Model -> Html Msg
 renderInfo stylesheet model =
   case model of
@@ -74,7 +104,7 @@ renderInfo stylesheet model =
       in
         div [ emptyInfo ] [ text "Please, select something on the right" ]
 
-    Full {name, descr, demos} ->
+    Full {name, descr, demos, selectedDemoPath} ->
       let
         sectionStyle = getStyle "infoSection" stylesheet
         titleStyle = getStyle "titleSection" stylesheet
@@ -85,7 +115,8 @@ renderInfo stylesheet model =
             h1 [] [text name]
           ],
           (Markdown.toHtml [ descrStyle ] descr),
-          (renderDemos stylesheet demos)
+          (renderDemos stylesheet demos),
+          (renderSelectedDemo selectedDemoPath)
         ]
 
 
@@ -104,7 +135,8 @@ decodeDemoModel =
 
 decodeInfo : Decoder Info
 decodeInfo =
-  map3 Info
+  map4 Info
     (field "name" string)
     (field "descr" string)
     (maybe (field "demos" (list decodeDemoModel)))
+    (maybe (field "selectedDemoPath" string))

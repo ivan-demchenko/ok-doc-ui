@@ -63,10 +63,13 @@ subscriptions model =
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    Info x ->
-        ( model
-        , Cmd.map (\_ -> Noop) Cmd.none
-        )
+    Info infoMsg ->
+        let
+            (newInfoModel, infoCmd) = InfoComponent.update infoMsg model.info
+        in
+            ( { model | info = newInfoModel }
+            , Cmd.map (\_ -> Noop) Cmd.none
+            )
 
     FromSidebar sbMsg ->
         let
