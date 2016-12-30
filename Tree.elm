@@ -3,8 +3,7 @@ module Tree exposing (..)
 import Json.Decode exposing (..)
 
 type alias Tree =
-  { id: Int
-  , name: String
+  { name: String
   , path: String
   , subs: Subs
   }
@@ -20,8 +19,7 @@ decodeSubs = list decodeTree
 
 decodeTree : Decoder Tree
 decodeTree =
-  map4 Tree
-    (field "id" int)
+  map3 Tree
     (field "name" string)
     (field "path" string)
     (field "subs" (map Subs (lazy (\_ -> decodeSubs))))
@@ -29,4 +27,4 @@ decodeTree =
 
 
 empty : Tree
-empty = Tree 0 "Waiting..." "" (Subs [])
+empty = Tree "Waiting..." "" (Subs [])

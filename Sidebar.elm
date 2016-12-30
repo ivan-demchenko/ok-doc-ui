@@ -52,7 +52,7 @@ renderTreeLabel selectedPath nodePath name =
 renderTree : Styles -> Path -> Tree -> Html Msg
 renderTree styles selectedPath tree =
   case tree of
-    { id, name, path, subs } ->
+    { name, path, subs } ->
       ul [ getStyle "tree" styles ] [
         li [ clicked path ] (
           [ renderTreeLabel selectedPath path name ] ++ renderSubTree styles selectedPath subs

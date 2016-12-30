@@ -90,7 +90,10 @@ renderSelectedDemo : Maybe String -> Html Msg
 renderSelectedDemo demoPath =
   case demoPath of
     Just path ->
-      iframe [src path] []
+      let
+        demoPath = "http://localhost:3000/demo?path=" ++ path
+      in
+        iframe [src demoPath] []
     
     Nothing ->
       div [] []
