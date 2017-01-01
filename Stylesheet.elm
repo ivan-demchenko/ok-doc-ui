@@ -23,6 +23,7 @@ stylesheet =
         [ ("display", "flex")
         , ("flex-direction", "column")
         , ("height", "100%")
+        , ("font-family", "sans-serif")
         ])
     , ("layout",
         [ ("display", "flex")
@@ -68,7 +69,7 @@ stylesheet =
         , ("flex", "1 0 auto")
         ])
     , ("titleSection",
-        [ ("padding", "2rem 1rem")
+        [ ("padding", "1rem")
         , ("color", "#fff")
         , ("font-weight", "100")
         , ("font-family", "sans-serif")
@@ -93,7 +94,17 @@ stylesheet =
         ]
       )
     , ("demoLinksListItem",
-        [ ("padding", "0 1rem")
+        [ ("padding", "0 .5rem")
+        ]
+      )
+    , ("demoLinksListItemSelected",
+        [ ("padding", "0 .5rem")
+        , ("font-weight", "bold")
+        ]
+      )
+    , ("demoViewer",
+        [ ("border", "none")
+        , ("flex", "1")
         ]
       )
     ]

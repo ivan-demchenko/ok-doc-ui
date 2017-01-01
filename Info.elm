@@ -61,16 +61,24 @@ update msg model =
 
 
 
-renderDemoLink : Styles -> DemoModel -> Html Msg
-renderDemoLink styles demo =
-  li [
-    getStyle "demoLinksListItem" styles,
-    onClick (SelectDemo demo.path)
-  ] [ text demo.name ]
+renderDemoLink : Styles -> Maybe String -> DemoModel -> Html Msg
+renderDemoLink styles selectedPath demo =
+  let
+    styleName = 
+      case selectedPath of
+        Just path ->
+          if demo.path == path then "demoLinksListItemSelected" else "demoLinksListItem"
+        Nothing ->
+          "demoLinksListItem"
+  in
+    li [
+      getStyle styleName styles,
+      onClick (SelectDemo demo.path)
+    ] [ text demo.name ]
 
 
-renderDemos : Styles -> Maybe (List DemoModel) -> Html Msg
-renderDemos stylesheet demos =
+renderDemos : Styles -> Maybe String -> Maybe (List DemoModel) -> Html Msg
+renderDemos stylesheet selectedDemo demos =
   let
     demoLinksStyle =
       getStyle "demoLinksSection" stylesheet
@@ -80,21 +88,25 @@ renderDemos stylesheet demos =
     case demos of
       Just xs ->
         section [ demoLinksStyle ] [
-          ul [ demoLinksListStyle ] (List.map (renderDemoLink stylesheet) xs)
+          ul [ demoLinksListStyle ] (List.map (renderDemoLink stylesheet selectedDemo) xs)
         ]
       Nothing ->
         section [] []
 
 
-renderSelectedDemo : Maybe String -> Html Msg
-renderSelectedDemo demoPath =
+renderSelectedDemo : Styles -> Maybe String -> Html Msg
+renderSelectedDemo stylesheet demoPath =
   case demoPath of
     Just path ->
       let
+        demoViewerStyle = getStyle "demoViewer" stylesheet
         demoPath = "http://localhost:3000/demo?path=" ++ path
       in
-        iframe [src demoPath] []
-    
+        iframe [
+          demoViewerStyle,
+          src demoPath
+        ] []
+
     Nothing ->
       div [] []
 
@@ -102,10 +114,9 @@ renderInfo : Styles -> Model -> Html Msg
 renderInfo stylesheet model =
   case model of
     None ->
-      let
-        emptyInfo = getStyle "emptyInfo" stylesheet
-      in
-        div [ emptyInfo ] [ text "Please, select something on the right" ]
+      div
+        [ getStyle "emptyInfo" stylesheet ]
+        [ text "Please, select something on the right" ]
 
     Full {name, descr, demos, selectedDemoPath} ->
       let
@@ -113,13 +124,14 @@ renderInfo stylesheet model =
         titleStyle = getStyle "titleSection" stylesheet
         descrStyle = getStyle "descriptionSection" stylesheet
       in
-        div [ sectionStyle ] [
-          section [ titleStyle ] [
-            h1 [] [text name]
-          ],
+        div
+          [ sectionStyle ]
+          [ section
+            [ titleStyle ]
+            [ h1 [] [text name] ],
           (Markdown.toHtml [ descrStyle ] descr),
-          (renderDemos stylesheet demos),
-          (renderSelectedDemo selectedDemoPath)
+          (renderDemos stylesheet selectedDemoPath demos),
+          (renderSelectedDemo stylesheet selectedDemoPath)
         ]
 
 
